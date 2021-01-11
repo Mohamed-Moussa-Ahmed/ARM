@@ -29,13 +29,44 @@ void MUSART1_voidInit(void)
 	SET_BIT(MUART1->CR1 ,13);
 	
 	/*Frame length */
-	#if UART_Date_FRAME_LENGTH == EIGHT_BITS
+	#if UART_WORD_LENGTH_LENGTH == EIGHT_BITS
 		CLR_BIT(MUART1->CR1 ,12);
-	#elif UART_Date_FRAME_LENGTH == NINE_BITS
+	#elif UART_WORD_LENGTH_LENGTH == NINE_BITS
 		SET_BIT(MUART1->CR1 ,12);
-		
+	#else 
+		#error "wrong word length"
 	#endif
 	
+	/*Stop Bits*/
+	#if UART_STOP_BITS == HALF_BIT
+		SET_BIT(MUART1->CR2 ,12);
+		CLR_BIT(MUART1->CR2 ,13);
+	#elif UART_STOP_BITS == ONE_BIT
+		CLR_BIT(MUART1->CR2 ,12);
+		CLR_BIT(MUART1->CR2 ,13);
+	#elif UART_STOP_BITS == ONE_AND_HALF_BIT
+		SET_BIT(MUART1->CR2 ,12);
+		SET_BIT(MUART1->CR2 ,13);
+	#elif UART_STOP_BITS == ONE_AND_HALF_BIT
+		CLR_BIT(MUART1->CR2 ,12);
+		SET_BIT(MUART1->CR2 ,13);
+	#else 
+		#error WRONG UART_STOP_BITS
+	#endif
+		
+		/*CHECK DMA TX */
+	#if UART_DMA_TX == ENABLE
+		SET_BIT(MUART1->CR3 ,7);
+	#elif UART_DMA_TX == DISABLE
+		CLR_BIT(MUART1->CR3 ,7);
+	#endif
+	
+	/*CHECK DMA RX */
+	#if UART_DMA_RX == ENABLE
+		SET_BIT(MUART1->CR3 ,6);
+	#elif UART_DMA_RX == DISABLE
+		CLR_BIT(MUART1->CR3 ,6);
+	#endif
 	/*Clear Status Register */
 	MUART1-> SR = 0;
 	
@@ -69,4 +100,20 @@ u8 MUSART1_u8Receive(void)
 	return LOC_u8ReceivedData;
 	
 	
+}
+
+void MUSAT1_Disable(void)
+{
+	/*Disable uart*/
+	CLR_BIT(MUART1->CR1 ,13);
+}
+
+void MUSAT1_TXInterruptEnable(void)
+{
+	SET_BIT(MUART1->CR1 ,6);
+}
+
+void MUSAT1_RXInterruptEnable(void)
+{
+	SET_BIT(MUART1->CR1 ,5);
 }
